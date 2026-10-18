@@ -86,7 +86,10 @@ function metLock_(fn, body) {
 function sheet_(naam) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName(naam);
-  if (!sh) { sh = ss.insertSheet(naam); sh.getRange(1, 1, 1, TABS[naam].length).setValues([TABS[naam]]).setFontWeight('bold'); sh.setFrozenRows(1); }
+  if (!sh) {
+    try { sh = ss.insertSheet(naam); } catch (e) { SpreadsheetApp.flush(); sh = ss.getSheetByName(naam); if (!sh) throw e; }
+    sh.getRange(1, 1, 1, TABS[naam].length).setValues([TABS[naam]]).setFontWeight('bold'); sh.setFrozenRows(1);
+  }
   return sh;
 }
 function tz_() { return SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone(); }
@@ -304,7 +307,7 @@ function projectWeg_(body) {
 function schilderOpslaan_(body) {
   var me = auth_(body); kantoor_(me);
   var naam = String(body.naam || '').trim(); if (!naam) throw fout_('Vul een naam in.');
-  var pin = pinStr_(body.pin);
+  var pin = pinStr_(body.schilderPin);
   if (!/^\d{4,6}$/.test(pin)) throw fout_('De pincode moet 4 tot 6 cijfers zijn.');
   var rol = body.rol === 'kantoor' ? 'kantoor' : 'schilder';
   var lijst = schilders_();

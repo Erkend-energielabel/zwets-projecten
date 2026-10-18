@@ -277,8 +277,8 @@ document.addEventListener('submit', async e=>{
     else { if(S.busy) return; S.busy=true; try{ const j=await api('projectOpslaan',d); await laad(); toast('Project aangemaakt'); openProject(j.id); }catch(err){ toast(err.message); } finally{ S.busy=false; } }
   }
   if(f.id==='painterForm'){
-    const d={ naam:$('#pn-name').value.trim(), pin:$('#pn-pin').value.trim(), rol:$('#pn-rol').value };
-    if(!/^\d{4,6}$/.test(d.pin)) return toast('De pincode moet 4 tot 6 cijfers zijn.');
+    const d={ naam:$('#pn-name').value.trim(), schilderPin:$('#pn-pin').value.trim(), rol:$('#pn-rol').value };
+    if(!/^\d{4,6}$/.test(d.schilderPin)) return toast('De pincode moet 4 tot 6 cijfers zijn.');
     if(S.editPainter) d.sid=S.editPainter;
     if(await doe('schilderOpslaan',d,S.editPainter?`${d.naam} bijgewerkt`:`${d.naam} toegevoegd`)){ S.editPainter=null; ['pn-name','pn-pin'].forEach(i=>{const el=document.getElementById(i); if(el) el.value='';}); render(); }
   }
