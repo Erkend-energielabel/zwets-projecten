@@ -15,6 +15,24 @@
  *            potloodje > Versie: Nieuwe versie > Implementeren. De link blijft gelijk.
  */
 
+/* ------------------------------------------------------------ installatie */
+
+function installeer() {
+  Object.keys(TABS).forEach(function (t) {
+    var sh = sheet_(t);
+    sh.getRange(1, 1, 1, TABS[t].length).setValues([TABS[t]]).setFontWeight('bold');
+    sh.setFrozenRows(1);
+  });
+  sheet_('Schilders').getRange('B:B').setNumberFormat('@');
+  sheet_('Materiaal').getRange('D:D').setNumberFormat('@');
+  sheet_('Uren').getRange('D:D').setNumberFormat('@');
+  sheet_('Materiaal').getRange('F:F').setNumberFormat('€ #,##0.00');
+  sheet_('Projecten').getRange('D:E').setNumberFormat('€ #,##0.00');
+  var leeg = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Blad1') || SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Sheet1');
+  if (leeg && leeg.getLastRow() === 0) SpreadsheetApp.getActiveSpreadsheet().deleteSheet(leeg);
+  if (lees_('Schilders').length === 0) voegToe_('Schilders', { Naam: 'Kantoor', Pincode: "'1234", Rol: 'kantoor', ID: 's-kantoor', Vergrendeld: '' });
+}
+
 var MAX_FOUT = 5;
 var TABS = {
   Schilders: ['Naam', 'Pincode', 'Rol', 'ID', 'Vergrendeld'],
@@ -143,6 +161,7 @@ function schilders_() {
 }
 
 function namen_() {
+  if (lees_('Schilders').length === 0) installeer();
   return schilders_().filter(function (s) { return s.pin; })
     .map(function (s) { return { id: s.ID, naam: s.Naam }; })
     .sort(function (a, b) { return a.naam.localeCompare(b.naam, 'nl'); });
@@ -317,22 +336,4 @@ function pinWijzigen_(body) {
   var s = schilders_().filter(function (x) { return x.ID === me.id; })[0];
   werkBij_('Schilders', s._rij, { Pincode: "'" + pin });
   return { ok: true };
-}
-
-/* ------------------------------------------------------------ installatie */
-
-function installeer() {
-  Object.keys(TABS).forEach(function (t) {
-    var sh = sheet_(t);
-    sh.getRange(1, 1, 1, TABS[t].length).setValues([TABS[t]]).setFontWeight('bold');
-    sh.setFrozenRows(1);
-  });
-  sheet_('Schilders').getRange('B:B').setNumberFormat('@');
-  sheet_('Materiaal').getRange('D:D').setNumberFormat('@');
-  sheet_('Uren').getRange('D:D').setNumberFormat('@');
-  sheet_('Materiaal').getRange('F:F').setNumberFormat('€ #,##0.00');
-  sheet_('Projecten').getRange('D:E').setNumberFormat('€ #,##0.00');
-  var leeg = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Blad1') || SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Sheet1');
-  if (leeg && leeg.getLastRow() === 0) SpreadsheetApp.getActiveSpreadsheet().deleteSheet(leeg);
-  if (lees_('Schilders').length === 0) voegToe_('Schilders', { Naam: 'Kantoor', Pincode: "'1234", Rol: 'kantoor', ID: 's-kantoor', Vergrendeld: '' });
 }
